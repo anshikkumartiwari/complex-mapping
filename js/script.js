@@ -359,3 +359,46 @@ function wMap()
 	}
 }
 redraw();
+
+function plotZFunctionOnChange() {
+    var input = document.getElementById("plotZFunction").value;
+    if (input.trim() === "") {
+        clearCanvas();
+        return;
+    }
+    
+    var func;
+    try {
+        // Parse the function with variable 'x'
+        func = Complex.parseFunction(input, ['x']);
+    } catch (err) {
+        console.error("Parsing error:", err);
+        return;
+    }
+    
+    // Clear the existing drawing
+    clearCanvas();
+    
+    // Use the horizontal axis as our independent variable (x)
+    var numPoints = zCanvas.width; // sample one per horizontal pixel
+    for (var i = 0; i <= numPoints; i++) {
+        // x ranges from Z_MIN_X to Z_MAX_X
+        var xVal = Z_MIN_X + (i / numPoints) * (Z_MAX_X - Z_MIN_X);
+        // Evaluate the function at x (treating it as a complex number with imaginary part 0)
+        var result = func(Complex(xVal, 0));
+        
+        // Use the real part as the y-value
+        var yVal = result.real();
+        
+        // Map the (xVal, yVal) to canvas coordinates
+        var canvasX = ((xVal - Z_MIN_X) / (Z_MAX_X - Z_MIN_X)) * zCanvas.width;
+        var canvasY = (1 - ((yVal - Z_MIN_Y) / (Z_MAX_Y - Z_MIN_Y))) * zCanvas.height;
+        
+        // Add the point: first point as a new stroke, subsequent ones with dragging
+        addClick(canvasX, canvasY, i > 0);
+    }
+    
+    // Redraw the canvas (this will also update the mapped w-plane)
+    redraw();
+}
+
