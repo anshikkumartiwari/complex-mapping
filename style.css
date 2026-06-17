@@ -94,7 +94,7 @@ button { cursor: pointer; font-family: var(--font-main); }
   flex-shrink: 0;
 }
 
-.theme-toggle-btn {
+.theme-toggle-btn, .help-trigger-btn {
   background: none !important;
   border: 1px solid var(--border) !important;
   border-radius: 50% !important;
@@ -108,7 +108,7 @@ button { cursor: pointer; font-family: var(--font-main); }
   cursor: pointer;
   transition: background var(--transition), border-color var(--transition), transform 0.15s;
 }
-.theme-toggle-btn:hover {
+.theme-toggle-btn:hover, .help-trigger-btn:hover {
   background: var(--surface-2) !important;
   border-color: var(--border-hover) !important;
   transform: scale(1.05);

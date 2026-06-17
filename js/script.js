@@ -1267,18 +1267,25 @@ function insertFunc(fn, tabType) {
   }
 }
 
+function areLatexExprsEqual(l1, l2) {
+  if (!l1 || !l2) return false;
+  const e1 = latexToExpr(l1).replace(/\s+/g, '');
+  const e2 = latexToExpr(l2).replace(/\s+/g, '');
+  return e1 === e2;
+}
+
 function syncFuncPanelHighlights() {
   // 1. Mapping presets (radio behavior)
   document.querySelectorAll('#funcTabMapping .func-chip').forEach(chip => {
     const latex = chip.dataset.latex;
-    const isActive = (S.mappingLatex === latex);
+    const isActive = areLatexExprsEqual(S.mappingLatex, latex);
     chip.classList.toggle('active', isActive);
   });
 
   // 2. z-plane Curve presets (checkbox behavior)
   document.querySelectorAll('#funcTabZplane .func-chip').forEach(chip => {
     const latex = chip.dataset.latex;
-    const isActive = S.equations.some(eq => eq.presetLatex === latex && eq.visible);
+    const isActive = S.equations.some(eq => eq.visible && (eq.presetLatex === latex || areLatexExprsEqual(eq.latex, latex)));
     chip.classList.toggle('active', isActive);
   });
 }
@@ -1512,7 +1519,6 @@ function dismissWelcomeTooltip() {
     window.removeEventListener('resize', positionWelcomeTooltip);
     setTimeout(() => {
       overlay.style.display = 'none';
-      overlay.remove();
       // Trigger the second tooltip immediately after dismissing the first
       initFuncTooltip();
     }, 450);
@@ -1738,7 +1744,6 @@ function dismissFuncTooltip() {
     window.removeEventListener('resize', positionFuncTooltip);
     setTimeout(() => {
       overlay.style.display = 'none';
-      overlay.remove();
     }, 450);
   }
   localStorage.setItem('complexmap_func_tooltip_dismissed', 'true');
@@ -1747,3 +1752,32 @@ function dismissFuncTooltip() {
 
 window.dismissFuncTooltip = dismissFuncTooltip;
 window.initFuncTooltip = initFuncTooltip;
+
+function replayOnboardingGuide() {
+  // Clear active slideshow
+  if (funcSlideshowTimer) {
+    clearInterval(funcSlideshowTimer);
+    funcSlideshowTimer = null;
+  }
+
+  // Ensure overlays are hidden and reset transitions
+  const overlay1 = document.getElementById('welcomeTooltipOverlay');
+  const overlay2 = document.getElementById('funcTooltipOverlay');
+  if (overlay1) {
+    overlay1.classList.remove('visible');
+    overlay1.style.display = 'none';
+  }
+  if (overlay2) {
+    overlay2.classList.remove('visible');
+    overlay2.style.display = 'none';
+  }
+
+  // Reset dismissal keys
+  localStorage.removeItem('complexmap_onboarding_dismissed');
+  localStorage.removeItem('complexmap_func_tooltip_dismissed');
+
+  // Trigger onboarding sequence again
+  initWelcomeTooltip();
+}
+
+window.replayOnboardingGuide = replayOnboardingGuide;
