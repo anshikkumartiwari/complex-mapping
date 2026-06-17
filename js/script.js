@@ -1180,10 +1180,10 @@ function insertFunc(fn, tabType) {
   }
 }
 
-function toggleFuncPanel() {
+function toggleFuncPanel(forceVal) {
   const panel = document.getElementById('funcPanel');
   const btn   = document.getElementById('funcPanelToggleBtn');
-  const open  = panel.classList.toggle('open');
+  const open  = typeof forceVal === 'boolean' ? panel.classList.toggle('open', forceVal) : panel.classList.toggle('open');
   panel.setAttribute('aria-hidden', String(!open));
   btn.setAttribute('aria-expanded', String(open));
   btn.classList.toggle('btn-accent', open);
@@ -1286,6 +1286,10 @@ if (document.readyState === 'loading') {
 // ============================================================
 function initWelcomeTooltip() {
   if (localStorage.getItem('complexmap_onboarding_dismissed') === 'true') {
+    // If onboarding is dismissed but function guide tooltip is not, load the second tooltip directly
+    if (localStorage.getItem('complexmap_func_tooltip_dismissed') !== 'true') {
+      initFuncTooltip();
+    }
     return;
   }
 
@@ -1404,6 +1408,8 @@ function dismissWelcomeTooltip() {
     setTimeout(() => {
       overlay.style.display = 'none';
       overlay.remove();
+      // Trigger the second tooltip immediately after dismissing the first
+      initFuncTooltip();
     }, 450);
   }
   localStorage.setItem('complexmap_onboarding_dismissed', 'true');
@@ -1411,3 +1417,229 @@ function dismissWelcomeTooltip() {
 
 // Bind to window for global inline accessibility access
 window.dismissWelcomeTooltip = dismissWelcomeTooltip;
+
+// ============================================================
+// SECOND ONBOARDING TOOLTIP & SLIDESHOW
+// ============================================================
+let funcSlideshowTimer = null;
+let funcSlideshowIndex = 0;
+const slideshowCombinations = [
+  {
+    mappingLatex: 'z^{2}',
+    curveLatex: '\\sin(3t) + i \\cdot \\sin(4t)', // Lissajous 3:4
+    curveType: 'parametric',
+    tMin: 0,
+    tMax: 6.28
+  },
+  {
+    mappingLatex: '\\frac{1}{z}',
+    curveLatex: '\\sin(3t) + i \\cdot \\sin(4t)', // Lissajous 3:4
+    curveType: 'parametric',
+    tMin: 0,
+    tMax: 6.28
+  },
+  {
+    mappingLatex: '\\sqrt{z}',
+    curveLatex: '\\sin(3t) + i \\cdot \\sin(4t)', // Lissajous 3:4
+    curveType: 'parametric',
+    tMin: 0,
+    tMax: 6.28
+  },
+  {
+    mappingLatex: 'z^{3}-z',
+    curveLatex: '\\sin(2t) + i \\cdot \\sin(3t)', // Lissajous 2:3
+    curveType: 'parametric',
+    tMin: 0,
+    tMax: 6.28
+  }
+];
+
+function initFuncTooltip() {
+  if (localStorage.getItem('complexmap_func_tooltip_dismissed') === 'true') {
+    return;
+  }
+
+  const overlay = document.getElementById('funcTooltipOverlay');
+  if (!overlay) return;
+
+  overlay.style.display = 'block';
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      overlay.classList.add('visible');
+      positionFuncTooltip();
+    }, 50);
+  });
+
+  window.addEventListener('resize', positionFuncTooltip);
+  
+  // Start cycling Lissajous curves in teal
+  startFuncSlideshow();
+}
+
+function positionFuncTooltip() {
+  const tooltip = document.getElementById('func-tooltip');
+  const overlay = document.getElementById('funcTooltipOverlay');
+  if (!tooltip || !overlay || !overlay.classList.contains('visible')) return;
+
+  const btn = document.getElementById('funcPanelToggleBtn');
+  const svg = document.getElementById('funcTooltipSvgOverlay');
+  if (!btn || !svg) return;
+
+  const btnRect = btn.getBoundingClientRect();
+  const isDesktop = window.innerWidth > 840;
+
+  // Responsive styling: center at bottom on small viewports
+  if (!isDesktop) {
+    svg.style.display = 'none';
+    tooltip.style.position = 'fixed';
+    tooltip.style.bottom = '80px';
+    tooltip.style.left = '50%';
+    tooltip.style.transform = 'translateX(-50%)';
+    tooltip.style.top = 'auto';
+    return;
+  }
+
+  svg.style.display = 'block';
+  tooltip.style.position = 'absolute';
+
+  const tWidth = 280;
+  const tHeight = 90;
+
+  // Position tooltip centered above the button
+  const tooltipX = btnRect.left + btnRect.width / 2 - tWidth / 2;
+  const tooltipY = btnRect.top - tHeight - 40;
+
+  tooltip.style.left = `${tooltipX}px`;
+  tooltip.style.top = `${tooltipY}px`;
+
+  const tRect = tooltip.getBoundingClientRect();
+
+  // Connector Endpoint (from bottom center of tooltip to top center of button)
+  const pStart = { x: tRect.left + tRect.width / 2, y: tRect.bottom - 5 };
+  const pEnd = { x: btnRect.left + btnRect.width / 2, y: btnRect.top - 5 };
+
+  const path = document.getElementById('path-f');
+  if (path) {
+    path.setAttribute('d', `M ${pStart.x} ${pStart.y} Q ${(pStart.x + pEnd.x)/2} ${(pStart.y + pEnd.y)/2 - 12} ${pEnd.x} ${pEnd.y}`);
+  }
+
+  const circle = document.getElementById('circle-f');
+  if (circle) {
+    circle.setAttribute('transform', `translate(${pEnd.x}, ${pEnd.y})`);
+  }
+}
+
+function startFuncSlideshow() {
+  if (funcSlideshowTimer) {
+    clearInterval(funcSlideshowTimer);
+  }
+  funcSlideshowIndex = 0;
+  
+  applySlideshowCombination(slideshowCombinations[0]);
+  
+  funcSlideshowTimer = setInterval(() => {
+    funcSlideshowIndex = (funcSlideshowIndex + 1) % slideshowCombinations.length;
+    applySlideshowCombination(slideshowCombinations[funcSlideshowIndex]);
+  }, 3200);
+}
+
+function applySlideshowCombination(combo) {
+  // 1. Set mapping LaTeX
+  const mapMq = mqInstances['mapping'];
+  if (mapMq) {
+    mapMq.latex(combo.mappingLatex);
+    const expr = latexToExpr(combo.mappingLatex);
+    const comp = compileExpr(expr);
+    if (comp) {
+      S.mappingLatex = combo.mappingLatex;
+      S.mappingExpr = expr;
+      S.mappingCompiled = comp;
+      updateMappingPreview(combo.mappingLatex);
+    }
+  }
+
+  // 2. Clear existing curves and add slide curve in teal #03dac6
+  S.equations = [];
+  for (const id in mqInstances) {
+    if (id !== 'mapping') delete mqInstances[id];
+  }
+
+  const eqList = document.getElementById('equationList');
+  if (eqList) eqList.innerHTML = '';
+  S.eqCounter = 0;
+
+  const eq = addEquation(combo.curveType);
+  eq.color = '#03dac6'; // Plot in teal color
+  eq.latex = combo.curveLatex;
+  eq.expr = latexToExpr(combo.curveLatex);
+  eq.visible = true;
+  eq.tMin = combo.tMin;
+  eq.tMax = combo.tMax;
+
+  setTimeout(() => {
+    const m = mqInstances[eq.id];
+    if (m) {
+      m.latex(combo.curveLatex);
+      updateEqExpr(eq.id, combo.curveLatex);
+    }
+    remapAllEqs();
+    redraw();
+  }, 60);
+}
+
+function stopSlideshowAndReset() {
+  if (funcSlideshowTimer) {
+    clearInterval(funcSlideshowTimer);
+    funcSlideshowTimer = null;
+  }
+
+  // Reset mapping to default exp(z)
+  const mapMq = mqInstances['mapping'];
+  if (mapMq) {
+    mapMq.latex('e^{z}');
+    S.mappingLatex = 'e^{z}'; S.mappingExpr = 'exp(z)';
+    S.mappingCompiled = math.compile('exp(z)');
+    updateMappingPreview('e^{z}');
+  }
+
+  // Reset equations to default y = x^2 - 1
+  S.equations = [];
+  for (const id in mqInstances) {
+    if (id !== 'mapping') delete mqInstances[id];
+  }
+  const eqList = document.getElementById('equationList');
+  if (eqList) eqList.innerHTML = '';
+  S.eqCounter = 0;
+
+  const eq = addEquation('real');
+  eq.latex = 'x^{2}-1';
+  eq.expr = 'x^2-1';
+  eq.visible = true;
+
+  setTimeout(() => {
+    const m = mqInstances[eq.id];
+    if (m) {
+      m.latex('x^{2}-1');
+      updateEqExpr(eq.id, 'x^{2}-1');
+    }
+    remapAllEqs();
+    redraw();
+  }, 60);
+}
+
+function dismissFuncTooltip() {
+  const overlay = document.getElementById('funcTooltipOverlay');
+  if (overlay) {
+    overlay.classList.remove('visible');
+    window.removeEventListener('resize', positionFuncTooltip);
+    setTimeout(() => {
+      overlay.style.display = 'none';
+      overlay.remove();
+    }, 450);
+  }
+  localStorage.setItem('complexmap_func_tooltip_dismissed', 'true');
+  stopSlideshowAndReset();
+}
+
+window.dismissFuncTooltip = dismissFuncTooltip;
+window.initFuncTooltip = initFuncTooltip;

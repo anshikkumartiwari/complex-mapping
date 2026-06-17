@@ -208,6 +208,7 @@
            tabindex="0" onclick="switchFuncTab('mapping')">f(z) Mappings</div>
       <div class="func-tab" data-tab="zplane" role="tab" aria-selected="false"
            tabindex="-1" onclick="switchFuncTab('zplane')">z-plane Curves</div>
+      <button class="func-panel-close-btn" onclick="toggleFuncPanel(false)" aria-label="Close function panel" title="Close Panel">✕</button>
     </div>
     <div id="funcTabMapping" class="func-tab-content active" role="tabpanel">
       <!-- Built by JS -->
@@ -353,6 +354,39 @@
     <div class="welcome-tooltip-body">
       <span class="welcome-tooltip-icon" aria-hidden="true">💡</span>
       <p>Write equations in <a href="https://www.desmos.com/calculator" target="_blank" rel="noopener noreferrer" class="tooltip-link">Desmos</a> style or markdown, or draw directly on the z-plane using your mouse.</p>
+    </div>
+  </div>
+</div>
+
+<!-- =============== FUNC TOOLTIP OVERLAY =============== -->
+<div id="funcTooltipOverlay" class="tooltip-overlay" style="display: none;">
+  <svg id="funcTooltipSvgOverlay" class="tooltip-svg-overlay" aria-hidden="true">
+    <defs>
+      <!-- Glow filter definition -->
+      <filter id="func-pointer-glow" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="3" result="blur" />
+        <feMerge>
+          <feMergeNode in="blur" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+    </defs>
+    
+    <!-- Connector path pointing to toolbar button -->
+    <path id="path-f" class="tooltip-pointer-path" filter="url(#func-pointer-glow)" />
+
+    <!-- Endpoint indicator -->
+    <g id="circle-f" class="tooltip-endpoint">
+      <circle r="4" fill="var(--tooltip-yellow)" />
+      <circle r="9" fill="none" stroke="var(--tooltip-yellow)" stroke-width="1.5" class="pulse-ring" />
+    </g>
+  </svg>
+  
+  <div id="func-tooltip" class="welcome-tooltip" style="width: 280px; padding: 20px 24px 20px 20px;">
+    <button class="welcome-tooltip-close" onclick="dismissFuncTooltip()" aria-label="Close guide" title="Dismiss Guide">✕</button>
+    <div class="welcome-tooltip-body">
+      <span class="welcome-tooltip-icon" aria-hidden="true">💡</span>
+      <p>Try other various functions see here.</p>
     </div>
   </div>
 </div>
