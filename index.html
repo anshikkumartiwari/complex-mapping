@@ -1,64 +1,320 @@
-<html>
-  <head>
-    <title>Complex Mapping</title>
-    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
-    <script src="js/complex.min.js"></script>
-    <script src="js/jscolor.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="style.css">
-  </head>
-  <body>
-    <center>
-      <h1>Complex Mapping Visualizer</h1>
-      <h3>Draw or input function on the z Plane, and watch the mapping on the w Plane!</h3>
-      <a href="https://github.com/anshikkumartiwari/complex-mapping">
-		  <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://rawd.githubusercontent.com/anshikkumartiwari/anshikkumartiwari.github.io/3cf7f5353ad3c0484103eef1ce984af38c04ce0b/images/A.svg" alt="Fork me on GitHub">
-		</a>
-		<div id="wrapper">
-			<div id="zPlaneDiv"><h2>z Plane</h2></div>  
-			<div id="wPlaneDiv"><h2>w Plane</h2></div>
-		</div>
-		Plot y=f(x) function: <br>
-		<input type="text" id="plotZFunction" placeholder="e.g., x^2+1" size="15" oninput="plotZFunctionOnChange()">
-		<br><br>
-		Input mapping function<br>
-		W(z)=<input type="text" id="mapping" size="6" value="z"><br>
-      <button onclick="mapUpdate()">Set Map</button>
-      <br><br>
-      <button onclick="clearCanvas()">Clear</button>
-      <br>
-      Color: <input class="jscolor" onchange="updateColor(this.jscolor)" value="FF0000" size="4">
-      <br><br>
-      <!-- NEW FUNCTION PLOT FIELD -->
-      <button id="settingsButton">Settings</button>
-      <div id="settings" class="settings">
-        <div class="settings-content">
-          <b>Range Settings:</b>
-          <br>
-          Z Plane:<br>
-          Max X:<input type="text" id="ZMAXX" value="2" size="4"><br>
-          Min X:<input type="text" id="ZMINX" value="-2" size="4"><br>
-          Max Y:<input type="text" id="ZMAXY" value="2" size="4"><br>
-          Min Y:<input type="text" id="ZMINY" value="-2" size="4"><br>
-          W Plane:<br>
-          Max X:<input type="text" id="WMAXX" value="2" size="4"><br>
-          Min X:<input type="text" id="WMINX" value="-2" size="4"><br>
-          Max Y:<input type="text" id="WMAXY" value="2" size="4"><br>
-          Min Y:<input type="text" id="WMINY" value="-2" size="4"><br>
-          <button onclick="updateRange()">Update Range</button><br>
-          <button onclick="resetRange()">Reset Range</button><br>
-          <b>Branch Cut Settings:</b><br>
-          Branch Cut Threshhold:<input type="text" id="bct" value="10" size="4"><br>
-          <button onclick="updateBCT()">Update BCT</button><br>
-          <button onclick="resetBCT()">Reset BCT</button><br>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complex Mapping Visualizer — Interactive Complex Analysis Tool</title>
+  <meta name="description" content="Visualize complex function mappings interactively. Draw freely or plot multiple equations on the z-plane and watch w=f(z) transform everything in real time. Supports sin, cos, exp, log, z², 1/z, Joukowski, Möbius and more.">
+  <meta name="keywords" content="complex mapping, complex analysis, conformal map, visualizer, z-plane, w-plane, Joukowski, Möbius, complex function, math visualization">
+  <meta name="author" content="Anshik Kumar Tiwari">
+  <meta property="og:title" content="Complex Mapping Visualizer">
+  <meta property="og:description" content="Visualize complex function mappings interactively. Draw on the z-plane and watch f(z) transform it on the w-plane.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://anshikkumartiwari.github.io/complex-mapping/">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 fill=%22%230371bb%22>∿</text></svg>">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+
+  <!-- MathQuill -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mathquill/0.10.1/mathquill.min.css" crossorigin="anonymous">
+
+  <!-- Site Styles -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Complex Mapping Visualizer",
+    "description": "Interactive complex analysis tool to visualize conformal mappings from z-plane to w-plane",
+    "author": { "@type": "Person", "name": "Anshik Kumar Tiwari", "url": "https://anshikkumartiwari.github.io/" },
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "Web",
+    "url": "https://anshikkumartiwari.github.io/complex-mapping/"
+  }
+  </script>
+</head>
+<body>
+<div id="error-console" style="color: #d32f2f; background: #ffebee; padding: 12px; border: 1px solid #ffcdd2; display: none; font-family: monospace; font-size: 13px; z-index: 99999; position: relative; margin: 10px; border-radius: var(--radius);">
+  <b style="font-size: 14px;">JavaScript Error Detected:</b>
+</div>
+<script>
+  window.onerror = function(msg, url, line, col, error) {
+    const consoleDiv = document.getElementById('error-console');
+    if (consoleDiv) {
+      consoleDiv.style.display = 'block';
+      consoleDiv.innerHTML += '<div style="margin-top: 5px;">• ' + msg + ' (at ' + url.split('/').pop() + ':' + line + ':' + col + ')</div>';
+    }
+    console.error(msg, url, line, col, error);
+    return false;
+  };
+  if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark-theme');
+  }
+</script>
+
+<!-- =============== HEADER =============== -->
+<header class="site-header">
+  <a class="logo" href="index.html" aria-label="ComplexMap Home">
+    <span class="logo-icon" aria-hidden="true">∿</span>
+    <span>ComplexMap</span>
+  </a>
+  <nav class="site-nav" aria-label="Main navigation">
+    <a class="nav-link" href="help.html">Help &amp; Guide</a>
+    <button class="btn theme-toggle-btn" onclick="toggleTheme()" title="Toggle Light/Dark Theme" aria-label="Toggle theme">
+      <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+    </button>
+  </nav>
+</header>
+
+<!-- =============== MAIN CONTENT =============== -->
+<main class="main-content" id="mainContent">
+
+  <!-- --- SIDEBAR: Controls & Equations --- -->
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar controls">
+    
+    <!-- Mapping Function Section -->
+    <div class="sidebar-section">
+      <div class="sidebar-header">
+        <span class="sidebar-title">W = f(z) mapping function</span>
+      </div>
+      <div class="w-equation-wrap">
+        <div class="eq-row w-eq-row">
+          <div class="eq-row-top">
+            <label class="eq-toggle" title="Show/hide mapping in w-plane">
+              <input type="checkbox" id="mappingVisibleCheckbox" onchange="toggleMappingVisibility()">
+            </label>
+            <span class="eq-type-badge">w=f(z)</span>
+            <div class="eq-field-wrap">
+              <span id="mqMapping" aria-label="Mapping function input"></span>
+            </div>
+          </div>
+          <div class="eq-preview" id="mappingPreview" style="padding-left: 20px;">
+            <span>f(z) = </span><span id="kMappingPreview"></span>
+          </div>
         </div>
       </div>
-    </center>
-    <script type="text/javascript" src="js/script.js"></script>
-    <script type="text/javascript" src="js/box.js"></script>
-  </body>
-  <footer>
-	<center>
-		<p>&copy; 2025 by <a href="https://anshikkumartiwari.github.io/"> anshikkumartiwari </a></p>
-	</center>
-	</footer>
+    </div>
+
+    <!-- Z-Plane Equations Section -->
+    <div class="sidebar-section flex-expand">
+      <div class="sidebar-header">
+        <span class="sidebar-title">z-plane Equations</span>
+      </div>
+
+      <div class="equation-list" id="equationList" aria-live="polite">
+        <!-- Equation rows injected by JS -->
+      </div>
+
+      <div class="add-eq-row">
+        <button class="btn btn-add-eq" id="addRealEqBtn" onclick="addEquation('real')" title="Add a real function y = f(x) to the z-plane">
+          + y = f(x)
+        </button>
+        <button class="btn btn-add-eq" id="addParamEqBtn" onclick="addEquation('parametric')" title="Add a parametric curve z(t) to the z-plane">
+          + z(t)
+        </button>
+      </div>
+    </div>
+
+    <!-- Apply Mapping Button -->
+    <div class="sidebar-footer-btn-wrap">
+      <button class="btn btn-accent apply-map-btn" id="applyMappingBtn" onclick="applyMapping()" title="Apply the mapping function (Enter)">
+        Apply Mapping
+      </button>
+    </div>
+  </aside>
+
+  <!-- --- z-PLANE CANVAS --- -->
+  <section class="canvas-panel" id="zCanvasPanel" aria-label="z-plane canvas">
+    <div class="canvas-label">
+      <span class="plane-symbol">z</span>-plane
+      <span class="plane-sub">(draw or plot here)</span>
+    </div>
+    <div class="canvas-wrap" id="zCanvasWrap">
+      <canvas id="zCanvas" aria-label="z-plane drawing canvas"></canvas>
+      <div class="coord-tip" id="zCoordTip" aria-live="off"></div>
+    </div>
+  </section>
+
+  <!-- --- w-PLANE CANVAS --- -->
+  <section class="canvas-panel" id="wCanvasPanel" aria-label="w-plane canvas">
+    <div class="canvas-label">
+      <span class="plane-symbol">w</span>-plane
+      <span class="plane-sub">w = f(z)</span>
+    </div>
+    <div class="canvas-wrap" id="wCanvasWrap">
+      <canvas id="wCanvas" aria-label="w-plane output canvas"></canvas>
+      <div class="coord-tip" id="wCoordTip" aria-live="off"></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- =============== TOOLBAR =============== -->
+<div class="toolbar" id="toolbar" role="toolbar" aria-label="Drawing tools">
+  <div class="toolbar-group">
+    <span style="font-size:0.72rem;color:var(--text-dim);">Color:</span>
+    <div class="color-pick-wrap" id="colorPickWrap" title="Drawing color">
+      <div class="color-swatch" id="colorSwatch"></div>
+      <input type="color" id="drawColorInput" value="#0371bb"
+             oninput="updateDrawColor(this.value)" aria-label="Choose drawing color">
+    </div>
+  </div>
+  <div class="toolbar-sep"></div>
+  <div class="toolbar-group">
+    <button class="btn" id="drawGridBtn" onclick="toggleGrid()" title="Toggle coordinate grid on z-plane">
+      ⊞ Grid
+    </button>
+    <button class="btn" id="clearBtn" onclick="clearStrokes()" title="Clear freehand strokes">
+      ✕ Clear
+    </button>
+    <button class="btn" id="undoBtn" onclick="undo()" title="Undo last stroke (Ctrl+Z)">
+      ↩ Undo
+    </button>
+  </div>
+  <div class="toolbar-sep"></div>
+  <div class="toolbar-group stroke-wrap">
+    <label for="strokeWidthInput">Width:</label>
+    <input type="range" id="strokeWidthInput" min="1" max="10" value="3"
+           oninput="updateStrokeWidth(this.value)" aria-label="Stroke width">
+  </div>
+  <div class="toolbar-sep"></div>
+  <div class="toolbar-group">
+    <button class="btn" id="funcPanelToggleBtn" onclick="toggleFuncPanel()"
+            title="Toggle function reference panel" aria-expanded="false">
+      ƒ Functions
+    </button>
+  </div>
+  <div class="toolbar-sep"></div>
+  <div class="toolbar-group">
+    <button class="btn" id="settingsBtn" onclick="openSettings()" title="Open settings panel">
+      ⚙ Settings
+    </button>
+  </div>
+</div>
+
+<!-- =============== FUNCTION REFERENCE PANEL =============== -->
+<div class="func-panel" id="funcPanel" aria-hidden="true">
+  <div class="func-panel-inner">
+    <div class="func-tabs" id="funcTabs" role="tablist">
+      <div class="func-tab active" data-tab="mapping" role="tab" aria-selected="true"
+           tabindex="0" onclick="switchFuncTab('mapping')">f(z) Mappings</div>
+      <div class="func-tab" data-tab="zplane" role="tab" aria-selected="false"
+           tabindex="-1" onclick="switchFuncTab('zplane')">z-plane Curves</div>
+    </div>
+    <div id="funcTabMapping" class="func-tab-content active" role="tabpanel">
+      <!-- Built by JS -->
+    </div>
+    <div id="funcTabZplane" class="func-tab-content" role="tabpanel">
+      <!-- Built by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- =============== SETTINGS PANEL =============== -->
+<div class="settings-overlay" id="settingsOverlay" onclick="closeSettings()" aria-hidden="true"></div>
+<div class="settings-panel" id="settingsPanel" role="dialog" aria-modal="true" aria-label="Settings">
+  <div class="settings-hd">
+    <span class="settings-hd-title">⚙ Settings</span>
+    <button class="settings-close-btn" onclick="closeSettings()" aria-label="Close settings">✕</button>
+  </div>
+  <div class="settings-body">
+
+    <!-- Z-Plane Range -->
+    <div class="settings-section">
+      <div class="settings-section-hd">Z-Plane Viewport</div>
+      <div class="settings-grid">
+        <div class="s-field"><label for="ZMINX">Min Re</label><input type="number" id="ZMINX" value="-2" step="0.5"></div>
+        <div class="s-field"><label for="ZMAXX">Max Re</label><input type="number" id="ZMAXX" value="2" step="0.5"></div>
+        <div class="s-field"><label for="ZMINY">Min Im</label><input type="number" id="ZMINY" value="-2" step="0.5"></div>
+        <div class="s-field"><label for="ZMAXY">Max Im</label><input type="number" id="ZMAXY" value="2" step="0.5"></div>
+      </div>
+    </div>
+
+    <!-- W-Plane Range -->
+    <div class="settings-section">
+      <div class="settings-section-hd">W-Plane Viewport</div>
+      <div class="settings-grid">
+        <div class="s-field"><label for="WMINX">Min Re</label><input type="number" id="WMINX" value="-2" step="0.5"></div>
+        <div class="s-field"><label for="WMAXX">Max Re</label><input type="number" id="WMAXX" value="2" step="0.5"></div>
+        <div class="s-field"><label for="WMINY">Min Im</label><input type="number" id="WMINY" value="-2" step="0.5"></div>
+        <div class="s-field"><label for="WMAXY">Max Im</label><input type="number" id="WMAXY" value="2" step="0.5"></div>
+      </div>
+      <div class="settings-btns">
+        <button class="btn" style="font-size:0.75rem;padding:0.35rem 0.7rem" onclick="applyRange()">Apply</button>
+        <button class="btn" style="font-size:0.75rem;padding:0.35rem 0.7rem" onclick="resetRange()">Reset</button>
+      </div>
+    </div>
+
+    <!-- Branch Cut -->
+    <div class="settings-section">
+      <div class="settings-section-hd">Branch Cut Detection</div>
+      <div class="s-field">
+        <label for="bctSlider">Threshold (higher = more tolerant)</label>
+        <input type="range" id="bctSlider" min="1" max="50" value="10"
+               oninput="updateBCT(this.value)" aria-label="Branch cut threshold">
+        <span class="range-val" id="bctVal">10</span>
+      </div>
+      <div class="settings-btns">
+        <button class="btn" style="font-size:0.75rem;padding:0.35rem 0.7rem" onclick="resetBCT()">Reset BCT</button>
+      </div>
+    </div>
+
+    <!-- Grid -->
+    <div class="settings-section">
+      <div class="settings-section-hd">Grid &amp; Curve Resolution</div>
+      <div class="s-field">
+        <label for="gridNSlider">Grid lines per axis</label>
+        <input type="range" id="gridNSlider" min="4" max="20" value="10"
+               oninput="updateGridN(this.value)" aria-label="Number of grid lines">
+        <span class="range-val" id="gridNVal">10</span>
+      </div>
+      <div class="s-field">
+        <label for="paramResSlider">Parametric samples</label>
+        <input type="range" id="paramResSlider" min="100" max="2000" step="100" value="500"
+               oninput="updateParamRes(this.value)" aria-label="Parametric resolution">
+        <span class="range-val" id="paramResVal">500</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- =============== FOOTER =============== -->
+<footer>
+  <span>© <a href="https://anshikkumartiwari.github.io/" target="_blank" rel="noopener noreferrer">Anshik Kumar Tiwari</a></span>
+  <span class="footer-dot">·</span>
+  <a href="https://github.com/anshikkumartiwari/complex-mapping" target="_blank" rel="noopener noreferrer">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-2px;margin-right:3px" aria-hidden="true">
+      <path d="M12 0C5.37 0 0 5.37 0 12a12 12 0 008.21 11.43c.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.61-4.04-1.61-.55-1.4-1.34-1.77-1.34-1.77-1.1-.76.08-.75.08-.75 1.21.09 1.84 1.24 1.84 1.24 1.08 1.84 2.83 1.31 3.52 1 .11-.78.42-1.31.76-1.61-2.67-.3-5.47-1.34-5.47-5.97 0-1.32.47-2.4 1.24-3.25-.12-.3-.54-1.52.12-3.17 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 016 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.65.24 2.87.12 3.17.77.85 1.24 1.93 1.24 3.25 0 4.64-2.81 5.66-5.49 5.96.43.37.81 1.1.81 2.22v3.29c0 .32.21.7.82.58A12 12 0 0024 12c0-6.63-5.37-12-12-12z"/>
+    </svg>
+    GitHub
+  </a>
+  <span class="footer-dot">·</span>
+  <a href="help.html">Help &amp; Guide</a>
+</footer>
+
+<!-- =============== TOAST CONTAINER =============== -->
+<div class="toast-wrap" id="toastWrap" aria-live="polite" aria-atomic="false"></div>
+
+<!-- =============== SCRIPTS =============== -->
+<!-- jQuery (required by MathQuill) -->
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" crossorigin="anonymous"></script>
+<!-- KaTeX -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+<!-- MathQuill -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathquill/0.10.1/mathquill.min.js" crossorigin="anonymous"></script>
+<!-- math.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.0/math.min.js" crossorigin="anonymous"></script>
+<!-- App -->
+<script src="js/script.js"></script>
+
+</body>
 </html>

@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Help &amp; Guide — Complex Mapping Visualizer</title>
+  <meta name="description" content="Learn how to use the Complex Mapping Visualizer. Understand complex functions, conformal maps, parametric curves, and how to visualize z-plane to w-plane transformations.">
+  <meta name="keywords" content="complex mapping guide, complex analysis tutorial, conformal map explained, z-plane w-plane, complex function visualizer how to use, Joukowski transform, Möbius transformation">
+  <meta name="author" content="Anshik Kumar Tiwari">
+  <meta property="og:title" content="Help &amp; Guide — Complex Mapping Visualizer">
+  <meta property="og:description" content="Learn how to visualize complex function mappings. Step-by-step guide, function reference, FAQ and math background.">
+  <meta property="og:type" content="article">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 fill=%22%230371bb%22>∿</text></svg>">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+
+  <!-- Site Styles -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Help & Guide — Complex Mapping Visualizer",
+    "description": "Step-by-step guide, function reference, and FAQ for the Complex Mapping Visualizer",
+    "author": { "@type": "Person", "name": "Anshik Kumar Tiwari", "url": "https://anshikkumartiwari.github.io/" }
+  }
+  </script>
+</head>
+<!-- body gets 'help-page' class so CSS overrides overflow:hidden on the visualizer page -->
+<body style="height:auto;overflow:auto;">
+<script>
+  const isDark = localStorage.getItem('theme') === 'dark';
+  if (isDark) {
+    document.body.classList.add('dark-theme');
+  }
+  document.addEventListener('DOMContentLoaded', () => {
+    const sunIcon = document.querySelector('.sun-icon');
+    const moonIcon = document.querySelector('.moon-icon');
+    if (sunIcon && moonIcon) {
+      sunIcon.style.display = isDark ? 'block' : 'none';
+      moonIcon.style.display = isDark ? 'none' : 'block';
+    }
+  });
+</script>
+
+<!-- ========== HEADER ========== -->
+<header class="site-header">
+  <a class="logo" href="index.html" aria-label="ComplexMap Home">
+    <span class="logo-icon" aria-hidden="true">∿</span>
+    <span>ComplexMap</span>
+  </a>
+  <nav class="site-nav" aria-label="Main navigation">
+    <a class="nav-link" href="index.html">Visualizer</a>
+    <a class="nav-link active" href="help.html">Help &amp; Guide</a>
+    <button class="btn theme-toggle-btn" onclick="toggleTheme()" title="Toggle Light/Dark Theme" aria-label="Toggle theme">
+      <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+    </button>
+  </nav>
+</header>
+
+<!-- ========== CONTENT ========== -->
+<div class="help-container">
+
+  <!-- Hero -->
+  <section class="help-hero">
+    <h1>Help &amp; Guide</h1>
+    <p class="tagline">
+      Everything you need to visualize and understand complex function mappings.
+    </p>
+    <a class="hero-cta" href="index.html">→ Open Visualizer</a>
+  </section>
+
+  <!-- 1. What is Complex Mapping? -->
+  <section class="help-section" id="what-is">
+    <h2>What is Complex Mapping?</h2>
+    <p>
+      A <strong>complex mapping</strong> is a function that takes a complex number
+      <span id="k-z-plain"></span> and produces another complex number
+      <span id="k-w-plain"></span>. We write this as <span id="k-fz-inline"></span>.
+    </p>
+    <div class="math-block-help" id="k-fz-display"></div>
+    <p>
+      Complex numbers live in a 2D plane: the horizontal axis is the real part, the vertical
+      is the imaginary part. A complex function can be thought of as a <em>transformation</em>
+      that warps, rotates, stretches, or folds this plane.
+    </p>
+    <p>
+      This visualizer lets you draw or plot curves on the <strong>z-plane</strong> (left), and
+      instantly see how <span id="k-fz-inline2"></span> maps those curves onto the
+      <strong>w-plane</strong> (right) — in real time.
+    </p>
+  </section>
+
+  <!-- 2. How to Use -->
+  <section class="help-section" id="how-to-use">
+    <h2>How to Use</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text">
+          <strong>Enter a mapping function</strong> in the top bar (the <em>w = f(z) =</em> input).
+          Type using LaTeX (<code>\sin(z)</code>, <code>z^2</code>, <code>\frac{1}{z}</code>)
+          or plain notation (<code>sin(z)</code>, <code>z^2</code>, <code>1/z</code>).
+          Press <strong>Apply f(z)</strong> or hit Enter.
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text">
+          <strong>Draw freely</strong> on the z-plane (left canvas) with your mouse or touch.
+          The w-plane (right) updates in real time showing the transformed drawing.
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text">
+          <strong>Add typed equations</strong> using the sidebar. Click <strong>+ y=f(x)</strong>
+          to plot a real-valued function (e.g. <code>x^2</code> draws a parabola), or
+          <strong>+ z(t)</strong> for a parametric complex curve (e.g. <code>e^{it}</code> draws
+          the unit circle). Each equation gets its own color and can be toggled or deleted.
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-text">
+          Click <strong>⊞ Grid</strong> in the toolbar to overlay a coordinate grid on the z-plane
+          and instantly see how the mapping deforms the entire domain — no drawing needed.
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-text">
+          Use the <strong>ƒ Functions</strong> panel to browse ready-made formulas organized by
+          category. Click any entry to instantly insert it into the active field and apply it.
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-text">
+          Open <strong>⚙ Settings</strong> to customize the viewport ranges for both planes,
+          the branch cut threshold, grid density, and parametric resolution.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Equation Input Types -->
+  <section class="help-section" id="inputs">
+    <h2>Equation Input Types</h2>
+    <p>There are three ways to put content on the z-plane:</p>
+
+    <table class="func-ref-table">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Button</th>
+          <th>Example</th>
+          <th>What it does</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Real function</strong></td>
+          <td><code>+ y=f(x)</code></td>
+          <td><span class="k-example" data-latex="x^2 + \sin(x)"></span></td>
+          <td>Plots the curve y = f(x) on the z-plane, where x scans the real axis</td>
+        </tr>
+        <tr>
+          <td><strong>Parametric curve</strong></td>
+          <td><code>+ z(t)</code></td>
+          <td><span class="k-example" data-latex="e^{it}"></span></td>
+          <td>Traces z = complex expression of t over range [t_min, t_max]</td>
+        </tr>
+        <tr>
+          <td><strong>Freehand draw</strong></td>
+          <td>Click &amp; drag on z-plane</td>
+          <td>—</td>
+          <td>Draws any shape directly; coexists with typed equations</td>
+        </tr>
+        <tr>
+          <td><strong>Auto grid</strong></td>
+          <td><code>⊞ Grid</code></td>
+          <td>—</td>
+          <td>Overlays a coordinate grid of horizontal + vertical lines</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 4. Supported Functions -->
+  <section class="help-section" id="functions">
+    <h2>Supported Functions</h2>
+    <p>
+      All complex functions are evaluated by
+      <a href="https://mathjs.org" target="_blank" rel="noopener">math.js</a>.
+      The equation input uses <a href="http://mathquill.com/" target="_blank" rel="noopener">MathQuill</a>
+      (the same library as Desmos) for interactive LaTeX-style typing.
+    </p>
+    <table class="func-ref-table" id="funcRefTable">
+      <thead>
+        <tr>
+          <th>Function</th>
+          <th>Type or LaTeX</th>
+          <th>Description</th>
+          <th>Notable property</th>
+        </tr>
+      </thead>
+      <tbody id="funcRefBody">
+        <!-- Populated by script below -->
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 5. FAQ -->
+  <section class="help-section" id="faq">
+    <h2>Frequently Asked Questions</h2>
+
+    <details class="faq-item">
+      <summary>What is the w-plane? <span class="faq-arrow">▼</span></summary>
+      <div class="faq-body">
+        The w-plane is the <strong>output</strong> of the mapping. Every point
+        <span id="faq-z"></span> on the z-plane gets transformed to
+        <span id="faq-w"></span> on the w-plane. It shows you what the function
+        "does" to your drawings and curves.
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>What is a branch cut? <span class="faq-arrow">▼</span></summary>
+      <div class="faq-body">
+        Functions like <code>log(z)</code> and <code>sqrt(z)</code> are multi-valued —
+        they have more than one valid output per input. The <em>principal</em> branch
+        requires choosing a curve where the function is discontinuous. This visualizer's
+        <strong>Branch Cut Threshold</strong> (in Settings) controls when a line segment
+        is considered "too long" (a jump) and should be broken instead of connected.
+        Increase the threshold if too many lines are broken; decrease it if you see
+        spurious connecting lines across a branch cut.
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>What is a conformal map? <span class="faq-arrow">▼</span></summary>
+      <div class="faq-body">
+        An analytic function is <strong>conformal</strong> (angle-preserving) at any point
+        where its derivative is non-zero. If two curves cross at right angles on the z-plane,
+        their images also cross at right angles on the w-plane. You can verify this: draw
+        two perpendicular lines through a regular point, then watch their mapped images.
+        At critical points (where <span id="faq-fPrime"></span>), conformality breaks down —
+        angles get multiplied or folded.
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>How do y = f(x) equations work? <span class="faq-arrow">▼</span></summary>
+      <div class="faq-body">
+        Type any expression in terms of <code>x</code>. The visualizer samples
+        <code>x</code> across the z-plane's real axis range. The result is treated as
+        the <em>y-coordinate</em> (imaginary part), so the plotted point in the z-plane is
+        <span id="faq-xy"></span>. For example, <code>x^2</code> draws a parabola.
+        The result is then mapped through f(z) to the w-plane.
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>How do z(t) parametric curves work? <span class="faq-arrow">▼</span></summary>
+      <div class="faq-body">
+        Type a complex-valued expression of the real parameter <code>t</code>. The result
+        is a complex number whose real and imaginary parts are the x and y coordinates in
+        the z-plane. Set the <code>t</code> range using the inputs that appear on each
+        parametric equation row. Examples:
+        <ul style="padding-left:1.5rem;margin-top:0.5rem;line-height:2;">
+          <li><code>e^(i*t)</code> for t ∈ [0, 2π] — unit circle</li>
+          <li><code>t + i*t^2</code> for t ∈ [−2, 2] — parabola in complex plane</li>
+          <li><code>cos(t) + i*sin(2t)</code> for t ∈ [0, 2π] — Lissajous figure</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>Can I use multiple curves at once? <span class="faq-arrow">▼</span></summary>
+      <div class="faq-body">
+        Yes! Use the z-plane sidebar to add as many equations as you like — each gets its
+        own color, visibility toggle, and delete button. You can also draw freehand on top
+        of all typed equations. Everything on the z-plane is simultaneously mapped through
+        f(z) to the w-plane.
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>What constants can I use? <span class="faq-arrow">▼</span></summary>
+      <div class="faq-body">
+        <code>pi</code> or <code>\pi</code> for <span id="faq-pi"></span>,
+        <code>e</code> for Euler's number ≈ 2.718…,
+        and <code>i</code> for the imaginary unit <span id="faq-i"></span>.
+        Example: typing <code>e^{i\pi}+1</code> evaluates to 0 (Euler's identity).
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>My w-plane looks empty or everything is off-screen. Help! <span class="faq-arrow">▼</span></summary>
+      <div class="faq-body">
+        Some mappings (like <code>e^z</code>) can produce values far outside the default
+        [−2, 2] viewport. Open <strong>⚙ Settings</strong> and increase the w-plane range
+        (e.g. set Max Re/Im to 10). Alternatively, use the <strong>Reset</strong> button in
+        settings to return to defaults.
+      </div>
+    </details>
+  </section>
+
+  <!-- 6. Math Background -->
+  <section class="help-section" id="background">
+    <h2>Mathematical Background</h2>
+
+    <details class="faq-item">
+      <summary>Complex numbers <span class="faq-arrow">▼</span></summary>
+      <div class="faq-body">
+        <p>A complex number has the form <span id="bg-z1"></span> where x, y are real and <span id="bg-i"></span>.</p>
+        <p>In polar form: <span id="bg-zpolar"></span> where <span id="bg-r"></span> is the modulus and <span id="bg-theta"></span> is the argument (angle).</p>
+        <p>Key identities:</p>
+        <div id="bg-euler" style="text-align:center;padding:0.5rem;"></div>
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>Analytic functions &amp; the Cauchy-Riemann equations <span class="faq-arrow">▼</span></summary>
+      <div class="faq-body">
+        <p>Writing <span id="bg-fz"></span>, a function is <strong>analytic</strong> (holomorphic) in a region if it satisfies the Cauchy-Riemann equations:</p>
+        <div id="bg-cr" style="text-align:center;padding:0.5rem;"></div>
+        <p>Analytic functions are differentiable everywhere in their domain and produce
+        conformal (angle-preserving) mappings at non-critical points.</p>
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>Further reading <span class="faq-arrow">▼</span></summary>
+      <div class="faq-body">
+        <ul style="padding-left:1.5rem;line-height:2.2;color:var(--text-dim);">
+          <li><a href="https://www.youtube.com/watch?v=5PcpBw5Hbwo" target="_blank" rel="noopener">3Blue1Brown — What is a complex function? (YouTube)</a></li>
+          <li><a href="https://en.wikipedia.org/wiki/Conformal_map" target="_blank" rel="noopener">Wikipedia — Conformal Map</a></li>
+          <li><a href="https://en.wikipedia.org/wiki/Complex_analysis" target="_blank" rel="noopener">Wikipedia — Complex Analysis</a></li>
+          <li><a href="https://mathjs.org/docs/reference/functions.html" target="_blank" rel="noopener">math.js — Full function reference</a></li>
+          <li><a href="http://mathquill.com/" target="_blank" rel="noopener">MathQuill — Interactive math input library</a></li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+</div><!-- /help-container -->
+
+<!-- ========== FOOTER ========== -->
+<footer>
+  <span>© <a href="https://anshikkumartiwari.github.io/" target="_blank" rel="noopener noreferrer">Anshik Kumar Tiwari</a></span>
+  <span class="footer-dot">·</span>
+  <a href="https://github.com/anshikkumartiwari/complex-mapping" target="_blank" rel="noopener noreferrer">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-2px;margin-right:3px" aria-hidden="true">
+      <path d="M12 0C5.37 0 0 5.37 0 12a12 12 0 008.21 11.43c.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.61-4.04-1.61-.55-1.4-1.34-1.77-1.34-1.77-1.1-.76.08-.75.08-.75 1.21.09 1.84 1.24 1.84 1.24 1.08 1.84 2.83 1.31 3.52 1 .11-.78.42-1.31.76-1.61-2.67-.3-5.47-1.34-5.47-5.97 0-1.32.47-2.4 1.24-3.25-.12-.3-.54-1.52.12-3.17 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 016 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.65.24 2.87.12 3.17.77.85 1.24 1.93 1.24 3.25 0 4.64-2.81 5.66-5.49 5.96.43.37.81 1.1.81 2.22v3.29c0 .32.21.7.82.58A12 12 0 0024 12c0-6.63-5.37-12-12-12z"/>
+    </svg>
+    GitHub
+  </a>
+  <span class="footer-dot">·</span>
+  <a href="index.html">Visualizer</a>
+</footer>
+
+<!-- KaTeX -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+<script>
+/* Helper to render KaTeX into an element by ID */
+function kr(id, latex, display) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  katex.render(latex, el, { throwOnError: false, displayMode: !!display });
+}
+function toggleTheme() {
+  const isDark = document.body.classList.toggle('dark-theme');
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  const sunIcon = document.querySelector('.sun-icon');
+  const moonIcon = document.querySelector('.moon-icon');
+  if (sunIcon && moonIcon) {
+    sunIcon.style.display = isDark ? 'block' : 'none';
+    moonIcon.style.display = isDark ? 'none' : 'block';
+  }
+}
+
+/* Inline renders */
+kr('k-z-plain',    'z = x + iy');
+kr('k-w-plain',    'w');
+kr('k-fz-inline',  'w = f(z)');
+kr('k-fz-display', 'w = f(z) = f(x+iy) = u(x,y) + iv(x,y)', true);
+kr('k-fz-inline2', 'f(z)');
+
+/* FAQ */
+kr('faq-z',        'z');
+kr('faq-w',        'w = f(z)');
+kr('faq-fPrime',   "f'(z)=0");
+kr('faq-xy',       'z = x + if(x)');
+kr('faq-pi',       '\\pi \\approx 3.14159…');
+kr('faq-i',        'i = \\sqrt{-1}');
+
+/* Background */
+kr('bg-z1',    'z = x + iy');
+kr('bg-i',     'i^2 = -1');
+kr('bg-zpolar','z = r e^{i\\theta}');
+kr('bg-r',     'r = |z| = \\sqrt{x^2+y^2}');
+kr('bg-theta', '\\theta = \\arg(z)');
+kr('bg-euler', 'e^{i\\theta} = \\cos\\theta + i\\sin\\theta \\implies e^{i\\pi} + 1 = 0', true);
+kr('bg-fz',    'f(z) = u(x,y) + iv(x,y)');
+kr('bg-cr',    '\\dfrac{\\partial u}{\\partial x} = \\dfrac{\\partial v}{\\partial y},\\qquad \\dfrac{\\partial u}{\\partial y} = -\\dfrac{\\partial v}{\\partial x}', true);
+
+/* Function reference table */
+const funcs = [
+  { l:'z^2',                   code:'z^2',                    desc:'Square map',              note:'Doubles angles, squares moduli' },
+  { l:'e^z',                   code:'e^z or exp(z)',           desc:'Complex exponential',     note:'Horizontal lines → circles, vertical → rays' },
+  { l:'\\frac{1}{z}',         code:'1/z',                    desc:'Inversion',               note:'Möbius: circles/lines → circles/lines' },
+  { l:'\\sin(z)',              code:'\\sin(z)',                desc:'Complex sine',            note:'Conformal except at z = ±π/2 + nπ' },
+  { l:'\\cos(z)',              code:'\\cos(z)',                desc:'Complex cosine',          note:'Conformal except at z = nπ' },
+  { l:'\\tan(z)',              code:'\\tan(z)',                desc:'Complex tangent',         note:'Poles at z = π/2 + nπ' },
+  { l:'\\sinh(z)',             code:'\\sinh(z)',               desc:'Hyperbolic sine',         note:'Entire function' },
+  { l:'\\cosh(z)',             code:'\\cosh(z)',               desc:'Hyperbolic cosine',       note:'Entire function' },
+  { l:'\\tanh(z)',             code:'\\tanh(z)',               desc:'Hyperbolic tangent',      note:'Maps ℂ to unit disk' },
+  { l:'\\log(z)',              code:'\\log(z)',                desc:'Principal logarithm',     note:'Branch cut: negative real axis' },
+  { l:'\\sqrt{z}',            code:'\\sqrt{z}',               desc:'Principal square root',   note:'Branch cut: negative real axis' },
+  { l:'|z|',                  code:'abs(z)',                  desc:'Modulus',                 note:'Real-valued output (non-analytic)' },
+  { l:'\\arg(z)',              code:'arg(z)',                  desc:'Argument',                note:'Real-valued, branch cut at −π' },
+  { l:'\\bar{z}',             code:'\\bar{z} or conj(z)',     desc:'Complex conjugate',       note:'Anti-analytic (reflects across real axis)' },
+  { l:'\\Gamma(z)',           code:'\\Gamma(z) or gamma(z)',  desc:'Gamma function',          note:'Poles at non-positive integers' },
+  { l:'z+\\frac{1}{z}',      code:'z+1/z',                   desc:'Joukowski transform',     note:'Maps circles to Joukowski airfoil profiles' },
+  { l:'\\frac{z-1}{z+1}',    code:'(z-1)/(z+1)',            desc:'Möbius transform',         note:'Maps unit disk to right half-plane' },
+  { l:'\\frac{z-i}{z+i}',    code:'(z-i)/(z+i)',            desc:'Cayley transform',         note:'Maps upper half-plane to unit disk' },
+];
+
+const tbody = document.getElementById('funcRefBody');
+funcs.forEach(fn => {
+  const tr = document.createElement('tr');
+  const mathTd = document.createElement('td');
+  mathTd.className = 'math-cell';
+  katex.render(fn.l, mathTd, { throwOnError: false });
+  const codeTd = document.createElement('td');
+  codeTd.innerHTML = `<code style="font-family:var(--font-mono);font-size:0.78rem;color:var(--accent)">${fn.code}</code>`;
+  const descTd = document.createElement('td');
+  descTd.textContent = fn.desc;
+  const noteTd = document.createElement('td');
+  noteTd.textContent = fn.note;
+  noteTd.style.fontSize = '0.78rem';
+  noteTd.style.color = 'var(--text-faint)';
+  tr.append(mathTd, codeTd, descTd, noteTd);
+  tbody.appendChild(tr);
+});
+
+/* Input type examples */
+document.querySelectorAll('.k-example').forEach(el => {
+  katex.render(el.dataset.latex, el, { throwOnError: false });
+});
+
+/* Theme toggle */
+function toggleTheme() {
+  const isDark = document.body.classList.toggle('dark-theme');
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+}
+</script>
+</body>
+</html>
