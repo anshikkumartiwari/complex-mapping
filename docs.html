@@ -3,13 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Help &amp; Guide — Complex Mapping Visualizer</title>
-  <meta name="description" content="Learn how to use the Complex Mapping Visualizer. Understand complex functions, conformal maps, parametric curves, and how to visualize z-plane to w-plane transformations.">
-  <meta name="keywords" content="complex mapping guide, complex analysis tutorial, conformal map explained, z-plane w-plane, complex function visualizer how to use, Joukowski transform, Möbius transformation">
+  <title>Complex Mapping Visualizer Online & Conformal Map Calculator - User Guide</title>
+  <meta name="description" content="Learn how to use the interactive online Complex Mapping Visualizer. Understand complex graph equations, conformal maps, parametric curves, and our advanced complex function plotter grapher viewer.">
+  <meta name="keywords" content="complex mapping interactive simulation, complex mapping online, Complex mapping visualizer online, Geogebra complex mapping, Desmos complex mapping, Complex graph equations, Complex function calculator, Complex function grapher, Complex plane Grapher 2d, Conformal map calculator, complex function plotter grapher viewer">
   <meta name="author" content="Anshik Kumar Tiwari">
-  <meta property="og:title" content="Help &amp; Guide — Complex Mapping Visualizer">
-  <meta property="og:description" content="Learn how to visualize complex function mappings. Step-by-step guide, function reference, FAQ and math background.">
+  <meta property="og:title" content="Help &amp; Guide — Complex Mapping Visualizer Online">
+  <meta property="og:description" content="Interactive complex function calculator and viewer. Step-by-step guide, function reference, FAQ, and mathematical foundations for conformal maps.">
   <meta property="og:type" content="article">
+  <link rel="canonical" href="https://anshikkumartiwari.github.io/complex-mapping/docs.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Complex Mapping Visualizer Online">
+  <meta name="twitter:description" content="Interactive complex function calculator and conformal map viewer.">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 fill=%22%230371bb%22>∿</text></svg>">
 
   <!-- Google Fonts -->
@@ -30,6 +34,22 @@
     "headline": "Help & Guide — Complex Mapping Visualizer",
     "description": "Step-by-step guide, function reference, and FAQ for the Complex Mapping Visualizer",
     "author": { "@type": "Person", "name": "Anshik Kumar Tiwari", "url": "https://anshikkumartiwari.github.io/" }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "What is the w-plane?", "acceptedAnswer": { "@type": "Answer", "text": "The w-plane represents the output of a complex function w = f(z). Every point z on the z-plane gets transformed to w on the w-plane." } },
+      { "@type": "Question", "name": "What is a branch cut?", "acceptedAnswer": { "@type": "Answer", "text": "For multi-valued functions like square roots or logarithms, a branch cut is a curve (often along the negative real axis) where the function output jumps discontinuously." } },
+      { "@type": "Question", "name": "What is a conformal map?", "acceptedAnswer": { "@type": "Answer", "text": "A conformal map is a function that preserves angles locally. Most analytic functions are conformal where their derivative is non-zero." } },
+      { "@type": "Question", "name": "How do y = f(x) equations work?", "acceptedAnswer": { "@type": "Answer", "text": "Standard Cartesian curves are mapped directly from the x-y coordinates to the complex plane z = x + i y." } },
+      { "@type": "Question", "name": "How do z(t) parametric curves work?", "acceptedAnswer": { "@type": "Answer", "text": "Parametric curves allow defining any path by varying a parameter t, which determines both the real and imaginary parts dynamically." } },
+      { "@type": "Question", "name": "How does this tool compare to GeoGebra complex mapping or Desmos complex mapping?", "acceptedAnswer": { "@type": "Answer", "text": "While GeoGebra and Desmos are powerful general-purpose graphing calculators, this tool is a specialized complex mapping interactive simulation. It natively supports a dual-pane setup (z-plane and w-plane) to visualize conformal maps, complex graph equations, and branch cuts in real time without complex setups." } },
+      { "@type": "Question", "name": "Is this a Conformal map calculator?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, this serves as a conformal map calculator by allowing you to input any analytic complex function and visualize its conformal mapping properties, observing how local angles are preserved during the transformation." } },
+      { "@type": "Question", "name": "Can I use this as a complex function plotter grapher viewer?", "acceptedAnswer": { "@type": "Answer", "text": "Absolutely. It is designed precisely as a complex function plotter grapher viewer, letting you draw freehand, plot parametric curves, and overlay grids to view transformations instantly." } }
+    ]
   }
   </script>
 </head>
@@ -58,7 +78,7 @@
   </a>
   <nav class="site-nav" aria-label="Main navigation">
     <a class="nav-link" href="index.html">Visualizer</a>
-    <a class="nav-link active" href="help.html">Help &amp; Guide</a>
+    <a class="nav-link active" href="docs.html">User Guide</a>
     <button class="btn theme-toggle-btn" onclick="toggleTheme()" title="Toggle Light/Dark Theme" aria-label="Toggle theme">
       <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
       <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
@@ -73,9 +93,14 @@
   <section class="help-hero">
     <h1>Help &amp; Guide</h1>
     <p class="tagline">
-      Everything you need to visualize and understand complex function mappings.
+      Everything you need to visualize and understand transformations with our <strong>complex mapping interactive simulation</strong>. A complete <strong>complex function calculator</strong> and <strong>complex plane grapher 2d</strong>.
     </p>
-    <a class="hero-cta" href="index.html">→ Open Visualizer</a>
+     <div style="display: flex; flex-direction: column; gap: 12px; align-items: center; margin-top: 15px;">
+      <a class="hero-cta" href="index.html" style="margin: 0;">Open Visualizer</a>
+      <button class="btn share-btn" onclick="navigator.clipboard.writeText('https://bit.ly/mapzw'); alert('Copied to clipboard!');" title="Share shortlink" aria-label="Share shortlink" style="display: flex; align-items: center; gap: 6px; font-size: 0.9em; padding: 8px 20px; border-radius: 30px; cursor: pointer; background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); width: fit-content;">
+        Share: https://bit.ly/mapzw
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+    </div>
   </section>
 
   <!-- 1. What is Complex Mapping? -->
@@ -91,6 +116,9 @@
       Complex numbers live in a 2D plane: the horizontal axis is the real part, the vertical
       is the imaginary part. A complex function can be thought of as a <em>transformation</em>
       that warps, rotates, stretches, or folds this plane.
+    </p>
+    <p>
+      For more rigorous mathematical definitions, we recommend reading the mathematical foundations of <a href="https://complex-analysis.com/content/mappings.html" target="_blank" rel="noopener noreferrer">complex mappings and transformations</a>.
     </p>
     <p>
       This visualizer lets you draw or plot curves on the <strong>z-plane</strong> (left), and
@@ -313,6 +341,28 @@
         settings to return to defaults.
       </div>
     </details>
+
+    <details class="faq-item">
+      <summary>How does this tool compare to GeoGebra or Desmos complex mapping? <span class="faq-arrow">▼</span></summary>
+      <div class="faq-body">
+        While tools like GeoGebra and Desmos are incredibly powerful general-purpose graphing calculators, this application is a specialized <strong>complex mapping interactive simulation</strong> and <strong>complex function calculator</strong>. It natively provides a dual-pane setup (z-plane to w-plane), handles branch cuts, and plots <strong>complex graph equations</strong> in real-time without requiring complex manual setups.
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>Is this a Conformal map calculator? <span class="faq-arrow">▼</span></summary>
+      <div class="faq-body">
+        Yes! This visualizer serves as a powerful <strong>conformal map calculator</strong>. By inputting an analytic function, you can observe its conformal properties directly on the <strong>Complex plane Grapher 2d</strong>, watching how local angles are preserved.
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>Can I use this as a complex function plotter grapher viewer? <span class="faq-arrow">▼</span></summary>
+      <div class="faq-body">
+        Absolutely. It functions as a complete <strong>complex function plotter grapher viewer</strong>. Whether you want to explore the visual output of <code>sin(z)</code>, plot custom <code>z(t)</code> curves, or just view the mathematical properties of advanced functions, this tool handles it online.
+      </div>
+    </details>
+
   </section>
 
   <!-- 6. Math Background -->
