@@ -885,20 +885,86 @@ function updateTRange(id) {
   redraw();
 }
 
-function pickEqColor(id) {
+function pickEqColor(id, event) {
+  if (event) event.stopPropagation();
+
+  // Close any existing popover
+  const existing = document.querySelector('.eq-color-popover');
+  if (existing) existing.remove();
+
   const eq = S.equations.find(e => e.id === id);
   if (!eq) return;
-  const inp = document.createElement('input');
-  inp.type = 'color';
-  inp.value = eq.color;
-  inp.addEventListener('input', ev => {
-    eq.color = ev.target.value;
-    const btn = document.querySelector(`.eq-row[data-id="${id}"] .eq-color-btn`);
-    if (btn) btn.style.background = eq.color;
-    computeEqPoints(eq);
-    redraw();
+
+  const btn = event ? event.currentTarget : document.querySelector(`.eq-row[data-id="${id}"] .eq-color-btn`);
+  if (!btn) return;
+
+  // Create popover
+  const popover = document.createElement('div');
+  popover.className = 'eq-color-popover';
+
+  const presets = ['#0371bb', '#03dac6', '#81c784', '#f9a825', '#cf6679', '#9c27b0'];
+  presets.forEach(color => {
+    const dot = document.createElement('div');
+    dot.className = 'popover-color-dot';
+    dot.style.background = color;
+    if (eq.color.toLowerCase() === color.toLowerCase()) {
+      dot.classList.add('active');
+    }
+    dot.onclick = (ev) => {
+      ev.stopPropagation();
+      eq.color = color;
+      btn.style.background = color;
+      computeEqPoints(eq);
+      redraw();
+      popover.remove();
+      document.removeEventListener('mousedown', onOutsideClick);
+    };
+    popover.appendChild(dot);
   });
-  inp.click();
+
+  // Custom trigger button
+  const custom = document.createElement('div');
+  custom.className = 'popover-color-dot custom-trigger';
+  custom.title = 'Custom color...';
+  custom.innerHTML = '🎨';
+  custom.onclick = (ev) => {
+    ev.stopPropagation();
+    popover.remove();
+    document.removeEventListener('mousedown', onOutsideClick);
+
+    // Open native picker
+    const inp = document.createElement('input');
+    inp.type = 'color';
+    inp.value = eq.color;
+    inp.addEventListener('input', ev2 => {
+      eq.color = ev2.target.value;
+      btn.style.background = eq.color;
+      computeEqPoints(eq);
+      redraw();
+    });
+    inp.click();
+  };
+  popover.appendChild(custom);
+
+  // Position popover relative to the button
+  document.body.appendChild(popover);
+  const btnRect = btn.getBoundingClientRect();
+  
+  // Placement: underneath the color button, aligned to its right
+  const left = btnRect.right - 180 + window.scrollX;
+  const top = btnRect.bottom + 6 + window.scrollY;
+
+  popover.style.left = `${left < 10 ? 10 : left}px`;
+  popover.style.top = `${top}px`;
+
+  // Outside click listener to close popover
+  function onOutsideClick(ev) {
+    if (!popover.contains(ev.target) && !btn.contains(ev.target)) {
+      popover.remove();
+      document.removeEventListener('mousedown', onOutsideClick);
+    }
+  }
+  document.addEventListener('mousedown', onOutsideClick);
 }
 
 function renderEqRow(eq) {
@@ -929,7 +995,7 @@ function renderEqRow(eq) {
         <span class="mq-eq-span"></span>
       </div>
       <button class="eq-color-btn" style="background:${eq.color}"
-              onclick="pickEqColor(${eq.id})" title="Change color" aria-label="Change color"></button>
+              onclick="pickEqColor(${eq.id}, event)" title="Change color" aria-label="Change color"></button>
       <button class="eq-delete-btn" onclick="removeEquation(${eq.id})"
               title="Delete equation" aria-label="Delete equation">✕</button>
     </div>
@@ -1540,7 +1606,7 @@ function startFuncSlideshow() {
   funcSlideshowTimer = setInterval(() => {
     funcSlideshowIndex = (funcSlideshowIndex + 1) % slideshowCombinations.length;
     applySlideshowCombination(slideshowCombinations[funcSlideshowIndex]);
-  }, 3200);
+  }, 1800);
 }
 
 function applySlideshowCombination(combo) {
@@ -1569,7 +1635,6 @@ function applySlideshowCombination(combo) {
   S.eqCounter = 0;
 
   const eq = addEquation(combo.curveType);
-  eq.color = '#03dac6'; // Plot in teal color
   eq.latex = combo.curveLatex;
   eq.expr = latexToExpr(combo.curveLatex);
   eq.visible = true;
