@@ -89,7 +89,7 @@
         <div class="eq-row w-eq-row">
           <div class="eq-row-top">
             <label class="eq-toggle" title="Show/hide mapping in w-plane">
-              <input type="checkbox" id="mappingVisibleCheckbox" onchange="toggleMappingVisibility()">
+              <input type="checkbox" id="mappingVisibleCheckbox" onchange="toggleMappingVisibility()" checked>
             </label>
             <span class="eq-type-badge">w=f(z)</span>
             <div class="eq-field-wrap">
@@ -303,6 +303,59 @@
 
 <!-- =============== TOAST CONTAINER =============== -->
 <div class="toast-wrap" id="toastWrap" aria-live="polite" aria-atomic="false"></div>
+
+<!-- =============== WELCOME TOOLTIP OVERLAY =============== -->
+<div id="welcomeTooltipOverlay" class="tooltip-overlay" style="display: none;">
+  <svg id="tooltipSvgOverlay" class="tooltip-svg-overlay" aria-hidden="true">
+    <defs>
+      <!-- Glow filter definition -->
+      <filter id="pointer-glow" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="3" result="blur" />
+        <feMerge>
+          <feMergeNode in="blur" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+    </defs>
+    
+    <!-- Curved paths pointing to the targets -->
+    <path id="path-w" class="tooltip-pointer-path" filter="url(#pointer-glow)" />
+    <path id="path-z" class="tooltip-pointer-path" filter="url(#pointer-glow)" />
+    <path id="path-c" class="tooltip-pointer-path" filter="url(#pointer-glow)" />
+
+    <!-- Endpoint glowing indicator groups -->
+    <g id="circle-w" class="tooltip-endpoint">
+      <circle r="4" fill="var(--tooltip-yellow)" />
+      <circle r="9" fill="none" stroke="var(--tooltip-yellow)" stroke-width="1.5" class="pulse-ring" />
+    </g>
+    <g id="circle-z" class="tooltip-endpoint">
+      <circle r="4" fill="var(--tooltip-yellow)" />
+      <circle r="9" fill="none" stroke="var(--tooltip-yellow)" stroke-width="1.5" class="pulse-ring" />
+    </g>
+    <g id="circle-c" class="tooltip-endpoint">
+      <!-- Pulsing ring at the tip of the pencil -->
+      <circle r="8" fill="none" stroke="var(--tooltip-yellow)" stroke-width="1.5" class="pulse-ring" />
+      <circle r="2" fill="var(--tooltip-yellow)" />
+      <!-- Pencil icon slanting up-right, with tip at (0,0) -->
+      <g transform="rotate(-15) translate(2, -2)">
+        <!-- Pencil tip -->
+        <path d="M 0,0 L 4,-2 L 2,-4 Z" fill="var(--tooltip-yellow)" />
+        <!-- Pencil body -->
+        <path d="M 4,-2 L 14,-12 L 17,-9 L 7,1 Z" fill="var(--tooltip-yellow)" opacity="0.9" />
+        <!-- Eraser / Cap -->
+        <path d="M 14,-12 L 16,-14 L 18,-12 L 17,-9 Z" fill="var(--tooltip-yellow)" />
+      </g>
+    </g>
+  </svg>
+  
+  <div id="welcome-tooltip" class="welcome-tooltip">
+    <button class="welcome-tooltip-close" onclick="dismissWelcomeTooltip()" aria-label="Close guide" title="Dismiss Guide">✕</button>
+    <div class="welcome-tooltip-body">
+      <span class="welcome-tooltip-icon" aria-hidden="true">💡</span>
+      <p>Write equations in <a href="https://www.desmos.com/calculator" target="_blank" rel="noopener noreferrer" class="tooltip-link">Desmos</a> style or markdown, or draw directly on the z-plane using your mouse.</p>
+    </div>
+  </div>
+</div>
 
 <!-- =============== SCRIPTS =============== -->
 <!-- jQuery (required by MathQuill) -->

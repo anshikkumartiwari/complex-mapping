@@ -30,7 +30,7 @@ const S = {
   mappingLatex   : 'e^{z}',
   mappingExpr    : 'exp(z)',
   mappingCompiled: null,
-  mappingVisible : false, // unticked by default
+  mappingVisible : true, // checked by default
 
   // z-plane equations list
   equations: [],     // [{id, type, latex, expr, tMin, tMax, color, visible, zPx, wPx, zCx}]
@@ -793,7 +793,6 @@ function applyMapping() {
   } else {
     S.mappingLatex = latex; S.mappingExpr = expr;
     S.mappingCompiled = comp;
-    showToast('Mapping applied', 'success');
   }
 
   // Recompute w-plane for everything
@@ -1266,12 +1265,12 @@ function init() {
       m.latex('x^{2}-1');
       updateEqExpr(eq.id, 'x^{2}-1');
     }
+    // Delayed call to let MathQuill render and size elements
+    setTimeout(initWelcomeTooltip, 200);
   }, 100);
 
   // Initial draw
   redraw();
-
-  showToast('Draw on z-plane or add equations in the sidebar →', 'info');
 }
 
 // Boot
@@ -1281,3 +1280,134 @@ if (document.readyState === 'loading') {
   // Delay slightly to let browser complete layout so canvas size is correct
   requestAnimationFrame(() => setTimeout(init, 50));
 }
+
+// ============================================================
+// ONBOARDING WELCOME TOOLTIP
+// ============================================================
+function initWelcomeTooltip() {
+  if (localStorage.getItem('complexmap_onboarding_dismissed') === 'true') {
+    return;
+  }
+
+  const overlay = document.getElementById('welcomeTooltipOverlay');
+  if (!overlay) return;
+
+  overlay.style.display = 'block';
+  // Allow browser to display before fading in
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      overlay.classList.add('visible');
+      positionWelcomeTooltip();
+    }, 50);
+  });
+
+  window.addEventListener('resize', positionWelcomeTooltip);
+}
+
+function positionWelcomeTooltip() {
+  const tooltip = document.getElementById('welcome-tooltip');
+  const overlay = document.getElementById('welcomeTooltipOverlay');
+  if (!tooltip || !overlay || !overlay.classList.contains('visible')) return;
+
+  const wRow = document.querySelector('.w-eq-row');
+  const zEqList = document.getElementById('equationList');
+  const zCanvas = document.getElementById('zCanvas');
+  const svg = document.getElementById('tooltipSvgOverlay');
+
+  if (!wRow || !zEqList || !zCanvas || !svg) return;
+
+  // Responsiveness: hide SVG connectors on small screens
+  const isDesktop = window.innerWidth > 840;
+  if (!isDesktop) {
+    svg.style.display = 'none';
+    return;
+  }
+  
+  svg.style.display = 'block';
+
+  const wRect = wRow.getBoundingClientRect();
+  const zEqRect = zEqList.getBoundingClientRect();
+  const zCanvasRect = zCanvas.getBoundingClientRect();
+
+  // Position tooltip relative to layout:
+  // Horizontally: right next to sidebar (wRect.right) plus some spacing.
+  // Vertically: aligned near the middle between mapping row and equation list
+  const tooltipX = wRect.right + 45;
+  const tooltipY = (wRect.bottom + zEqRect.top) / 2 - 20;
+
+  tooltip.style.left = `${tooltipX}px`;
+  tooltip.style.top = `${tooltipY}px`;
+
+  const tRect = tooltip.getBoundingClientRect();
+
+  // Connector Endpoints:
+  // 1. To W mapping function equation row input field
+  const pW_start = { x: tRect.left + 5, y: tRect.top + 35 };
+  const pW_end = { x: wRect.right - 10, y: wRect.top + wRect.height / 2 };
+
+  // 2. To Z equation list area
+  const pZ_start = { x: tRect.left + 5, y: tRect.bottom - 35 };
+  const pZ_end = { x: zEqRect.right - 10, y: zEqRect.top + 25 };
+
+  // 3. To Z canvas drawing area (pointing at lower half of z canvas)
+  const pC_start = { x: tRect.right - 5, y: tRect.top + tRect.height / 2 };
+  const pC_end = { 
+    x: zCanvasRect.left + zCanvasRect.width * 0.45, 
+    y: zCanvasRect.top + zCanvasRect.height * 0.65 
+  };
+
+  // Draw smooth curves
+  setPathCurve('path-w', pW_start, pW_end, 'left');
+  setPathCurve('path-z', pZ_start, pZ_end, 'left');
+  setPathCurve('path-c', pC_start, pC_end, 'right');
+
+  // Move indicator circles
+  setCirclePos('circle-w', pW_end);
+  setCirclePos('circle-z', pZ_end);
+  setCirclePos('circle-c', pC_end);
+}
+
+function setPathCurve(pathId, start, end, side) {
+  const path = document.getElementById(pathId);
+  if (!path) return;
+
+  const dx = Math.abs(end.x - start.x);
+
+  // Elegant cubic Bezier paths
+  let cp1x, cp1y, cp2x, cp2y;
+  if (side === 'left') {
+    cp1x = start.x - dx * 0.45;
+    cp1y = start.y;
+    cp2x = end.x + dx * 0.45;
+    cp2y = end.y;
+  } else {
+    cp1x = start.x + dx * 0.55;
+    cp1y = start.y;
+    cp2x = end.x - dx * 0.55;
+    cp2y = end.y;
+  }
+
+  path.setAttribute('d', `M ${start.x} ${start.y} C ${cp1x} ${cp1y} ${cp2x} ${cp2y} ${end.x} ${end.y}`);
+}
+
+function setCirclePos(circleId, pos) {
+  const circle = document.getElementById(circleId);
+  if (!circle) return;
+  circle.setAttribute('transform', `translate(${pos.x}, ${pos.y})`);
+}
+
+function dismissWelcomeTooltip() {
+  const overlay = document.getElementById('welcomeTooltipOverlay');
+  if (overlay) {
+    overlay.classList.remove('visible');
+    window.removeEventListener('resize', positionWelcomeTooltip);
+    setTimeout(() => {
+      overlay.style.display = 'none';
+      overlay.remove();
+    }, 450);
+  }
+  localStorage.setItem('complexmap_onboarding_dismissed', 'true');
+}
+
+// Bind to window for global inline accessibility access
+window.dismissWelcomeTooltip = dismissWelcomeTooltip;
