@@ -42,7 +42,7 @@ const S = {
   isDrawing  : false,
 
   // Grid
-  gridOn   : false,
+  gridOn   : true,
   gridLines: [],     // [{zPx, wPx, zCx, color}]
   gridN    : 10,
 
@@ -1411,6 +1411,13 @@ function init() {
   // Sync mapping checkbox
   const cb = document.getElementById('mappingVisibleCheckbox');
   if (cb) cb.checked = S.mappingVisible;
+
+  // Sync grid button and compute grid
+  const gridBtn = document.getElementById('drawGridBtn');
+  if (gridBtn && S.gridOn) {
+    gridBtn.classList.add('btn-accent');
+    computeGrid();
+  }
 
   // Initialize theme icons
   const isDark = document.body.classList.contains('dark-theme');
