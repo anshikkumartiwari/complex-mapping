@@ -660,6 +660,11 @@ function redraw() {
       drawMappedCurve(wCtx, S.curStroke.zPx, S.curStroke.wPx, S.curStroke.color, S.curStroke.width);
     }
   }
+
+  // Sync functional panel preset highlights dynamically
+  if (typeof syncFuncPanelHighlights === 'function') {
+    syncFuncPanelHighlights();
+  }
 }
 
 // ============================================================
@@ -859,6 +864,12 @@ function updateEqExpr(id, latex) {
   if (!eq) return;
   eq.latex = latex;
   eq.expr  = latexToExpr(latex);
+
+  // Deselect preset chip if user modifies it manually
+  if (eq.presetLatex && eq.presetLatex !== latex) {
+    eq.presetLatex = null;
+  }
+
   // Update KaTeX preview in row
   const row = document.querySelector(`.eq-row[data-id="${id}"]`);
   if (row) {
@@ -1203,6 +1214,7 @@ function buildTab(containerId, cats, tabType) {
     for (const fn of items) {
       const chip = document.createElement('button');
       chip.className = 'func-chip';
+      chip.dataset.latex = fn.l;
       chip.title = fn.desc;
 
       const mathSpan = document.createElement('span');
@@ -1226,25 +1238,52 @@ function buildTab(containerId, cats, tabType) {
 function insertFunc(fn, tabType) {
   if (tabType === 'mapping') {
     const mq = mqInstances['mapping'];
-    if (mq) { mq.latex(fn.l); updateMappingPreview(fn.l); applyMapping(); }
-  } else {
-    // Insert into the last focused equation field, or create new parametric
-    const id = S.activeField;
-    const mq = mqInstances[id];
-    if (mq && id !== 'mapping') {
+    if (mq) {
       mq.latex(fn.l);
-      updateEqExpr(id, fn.l);
+      updateMappingPreview(fn.l);
+      applyMapping();
+    }
+  } else {
+    // Checkbox toggle behavior for zplane curves
+    const existingIndex = S.equations.findIndex(eq => eq.presetLatex === fn.l);
+    if (existingIndex !== -1) {
+      const eqId = S.equations[existingIndex].id;
+      removeEquation(eqId);
     } else {
-      // Create a new parametric equation
+      // Add equation in a dynamically assigned new color
       const eq = addEquation('parametric');
+      eq.presetLatex = fn.l;
       if (fn.tMax !== undefined) eq.tMax = fn.tMax;
       setTimeout(() => {
         const m = mqInstances[eq.id];
-        if (m) { m.latex(fn.l); updateEqExpr(eq.id, fn.l); }
+        if (m) {
+          m.latex(fn.l);
+          updateEqExpr(eq.id, fn.l);
+        }
+        remapAllEqs();
+        redraw();
       }, 80);
     }
   }
 }
+
+function syncFuncPanelHighlights() {
+  // 1. Mapping presets (radio behavior)
+  document.querySelectorAll('#funcTabMapping .func-chip').forEach(chip => {
+    const latex = chip.dataset.latex;
+    const isActive = (S.mappingLatex === latex);
+    chip.classList.toggle('active', isActive);
+  });
+
+  // 2. z-plane Curve presets (checkbox behavior)
+  document.querySelectorAll('#funcTabZplane .func-chip').forEach(chip => {
+    const latex = chip.dataset.latex;
+    const isActive = S.equations.some(eq => eq.presetLatex === latex && eq.visible);
+    chip.classList.toggle('active', isActive);
+  });
+}
+
+window.syncFuncPanelHighlights = syncFuncPanelHighlights;
 
 function toggleFuncPanel(forceVal) {
   const panel = document.getElementById('funcPanel');
