@@ -27,8 +27,8 @@ const nextColor = () => COLORS[_colorIdx++ % COLORS.length];
 // ============================================================
 const S = {
   // Mapping function (w-plane side)
-  mappingLatex   : 'e^{z}',
-  mappingExpr    : 'exp(z)',
+  mappingLatex   : '\\frac{z-1}{z+1}',
+  mappingExpr    : '(z-1)/(z+1)',
   mappingCompiled: null,
   mappingVisible : true, // checked by default
 
@@ -47,8 +47,8 @@ const S = {
   gridN    : 10,
 
   // Coordinate ranges
-  zRange: { xMin:-2, xMax:2, yMin:-2, yMax:2 },
-  wRange: { xMin:-2, xMax:2, yMin:-2, yMax:2 },
+  zRange: { xMin:-3, xMax:3, yMin:-3, yMax:3 },
+  wRange: { xMin:-3, xMax:3, yMin:-3, yMax:3 },
 
   // Visual
   color      : '#0371bb',
@@ -115,6 +115,11 @@ function initCanvases() {
   // Coordinate tooltips
   zCanvas.addEventListener('mousemove', onZMouseMove);
   wCanvas.addEventListener('mousemove', onWMouseMove);
+  zCanvas.addEventListener('mouseleave', () => document.getElementById('zCoordTip').textContent = '');
+  wCanvas.addEventListener('mouseleave', () => document.getElementById('wCoordTip').textContent = '');
+
+  zCanvas.addEventListener('wheel', onWheelZ, { passive: false });
+  wCanvas.addEventListener('wheel', onWheelW, { passive: false });
 
   // Keyboard shortcuts
   document.addEventListener('keydown', e => {
@@ -247,10 +252,18 @@ function latexToExpr(latex) {
   // Remaining braces
   s = s.replace(/\{/g,'(').replace(/\}/g,')');
 
+  // Prevent constants from being mangled by implicit multiplication
+  s = s.replace(/\bpi\b/g, '__PI__');
+  s = s.replace(/\btheta\b/g, '__THETA__');
+
   // Implicit multiplication: 2z → 2*z, 2i → 2*i, iz → i*z
   s = s.replace(/(\d+(?:\.\d*)?)\s*([a-df-wyzA-Z])/g, '$1*$2'); // 2z, 2pi, 2t
   s = s.replace(/\bi\s*([a-hj-z])/g, 'i*$1');                   // iz → i*z, it → i*t
   s = s.replace(/([a-hj-z])\s*i\b/g, '$1*i');                   // zi → z*i
+  
+  // Restore constants
+  s = s.replace(/__PI__/g, 'pi');
+  s = s.replace(/__THETA__/g, 'theta');
 
   return s.replace(/\s+/g,' ').trim();
 }
@@ -755,7 +768,7 @@ function initMQ() {
     },
   });
   mqInstances['mapping'] = mqObj;
-  mqObj.latex('e^{z}');
+  mqObj.latex('\\frac{z-1}{z+1}');
   updateMappingPreview('e^{z}');
 
   // Programmatic click focus helpers for MathQuill fields
@@ -1084,8 +1097,8 @@ function closeSettings() {
 
 function applyRange() {
   const p = (id, def) => { const v = parseFloat(document.getElementById(id).value); return isNaN(v) ? def : v; };
-  S.zRange = { xMin: p('ZMINX',-2), xMax: p('ZMAXX',2), yMin: p('ZMINY',-2), yMax: p('ZMAXY',2) };
-  S.wRange = { xMin: p('WMINX',-2), xMax: p('WMAXX',2), yMin: p('WMINY',-2), yMax: p('WMAXY',2) };
+  S.zRange = { xMin: p('ZMINX',-3), xMax: p('ZMAXX',3), yMin: p('ZMINY',-3), yMax: p('ZMAXY',3) };
+  S.wRange = { xMin: p('WMINX',-3), xMax: p('WMAXX',3), yMin: p('WMINY',-3), yMax: p('WMAXY',3) };
   for (const eq of S.equations) computeEqPoints(eq);
   for (const st of S.strokes)   recomputeStrokePixels(st);
   if (S.gridOn) computeGrid();
@@ -1096,9 +1109,54 @@ function applyRange() {
 
 function resetRange() {
   ['ZMINX','ZMAXX','ZMINY','ZMAXY','WMINX','WMAXX','WMINY','WMAXY'].forEach((id,i) => {
-    document.getElementById(id).value = i%2===0 ? -2 : 2;
+    document.getElementById(id).value = i%2===0 ? -3 : 3;
   });
   applyRange();
+}
+
+function onWheelZ(e) {
+  e.preventDefault();
+  handleZoom(S.zRange, e, zCanvas);
+}
+
+function onWheelW(e) {
+  e.preventDefault();
+  handleZoom(S.wRange, e, wCanvas);
+}
+
+function handleZoom(range, e, canvas) {
+  const zoomFactor = e.deltaY > 0 ? 1.1 : 1/1.1;
+  const rect = canvas.getBoundingClientRect();
+  const px = (e.clientX - rect.left) / rect.width;
+  const py = (e.clientY - rect.top) / rect.height;
+  
+  const width = range.xMax - range.xMin;
+  const height = range.yMax - range.yMin;
+  
+  const cx = range.xMin + px * width;
+  const cy = range.yMax - py * height;
+  
+  const newWidth = width * zoomFactor;
+  const newHeight = height * zoomFactor;
+  
+  range.xMin = cx - px * newWidth;
+  range.xMax = cx + (1 - px) * newWidth;
+  range.yMax = cy + py * newHeight;
+  range.yMin = cy - (1 - py) * newHeight;
+  
+  document.getElementById('ZMINX').value = S.zRange.xMin.toFixed(2);
+  document.getElementById('ZMAXX').value = S.zRange.xMax.toFixed(2);
+  document.getElementById('ZMINY').value = S.zRange.yMin.toFixed(2);
+  document.getElementById('ZMAXY').value = S.zRange.yMax.toFixed(2);
+  document.getElementById('WMINX').value = S.wRange.xMin.toFixed(2);
+  document.getElementById('WMAXX').value = S.wRange.xMax.toFixed(2);
+  document.getElementById('WMINY').value = S.wRange.yMin.toFixed(2);
+  document.getElementById('WMAXY').value = S.wRange.yMax.toFixed(2);
+
+  for (const eq of S.equations) computeEqPoints(eq);
+  for (const st of S.strokes)   recomputeStrokePixels(st);
+  if (S.gridOn) computeGrid();
+  redraw();
 }
 
 function updateBCT(v) {
@@ -1299,6 +1357,8 @@ function toggleFuncPanel(forceVal) {
   panel.setAttribute('aria-hidden', String(!open));
   btn.setAttribute('aria-expanded', String(open));
   btn.classList.toggle('btn-accent', open);
+  document.body.classList.toggle('func-panel-open', open);
+  setTimeout(() => window.dispatchEvent(new Event('resize')), 310);
 }
 
 function switchFuncTab(tabName) {
@@ -1363,19 +1423,19 @@ function init() {
 
   // Start with default equation y = x^2 - 1
   const eq = addEquation('real');
-  eq.latex = 'x^{2}-1';
-  eq.expr = 'x^2-1';
+  eq.latex = '\\cos\\left(x+\\frac{\\pi}{2}\\right)';
+  eq.expr = 'cos(x+pi/2)';
 
   setTimeout(() => {
     const mapMq = mqInstances['mapping'];
     if (mapMq) {
-      mapMq.latex('e^{z}');
+      mapMq.latex('\\frac{z-1}{z+1}');
       applyMapping();
     }
     const m = mqInstances[eq.id];
     if (m) {
-      m.latex('x^{2}-1');
-      updateEqExpr(eq.id, 'x^{2}-1');
+      m.latex('\\cos\\left(x+\\frac{\\pi}{2}\\right)');
+      updateEqExpr(eq.id, '\\cos\\left(x+\\frac{\\pi}{2}\\right)');
     }
     // Delayed call to let MathQuill render and size elements
     setTimeout(initWelcomeTooltip, 200);
